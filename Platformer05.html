@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platformer</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { background: skyblue; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1>Platformer</h1>
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let player = { x: 50, y: 200, width: 20, height: 20, velocityY: 0, gravity: 0.5 };
+        let platforms = [{ x: 50, y: 250, width: 100, height: 10 }, { x: 200, y: 200, width: 100, height: 10 }];
+        let onGround = false;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillStyle = "green";
+            platforms.forEach(p => ctx.fillRect(p.x, p.y, p.width, p.height));
+        }
+
+        function update() {
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+            onGround = false;
+
+            platforms.forEach(p => {
+                if (player.y + player.height > p.y && player.y + player.height - player.velocityY <= p.y &&
+                    player.x + player.width > p.x && player.x < p.x + p.width) {
+                    player.y = p.y - player.height;
+                    player.velocityY = 0;
+                    onGround = true;
+                }
+            });
+
+            if (player.y > canvas.height) {
+                alert("Game Over!");
+                document.location.reload();
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowUp" && onGround) player.velocityY = -10;
+            if (e.key === "ArrowLeft") player.x -= 10;
+            if (e.key === "ArrowRight") player.x += 10;
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
